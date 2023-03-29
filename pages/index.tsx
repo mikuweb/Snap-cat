@@ -1,5 +1,5 @@
 import Head from "next/head";
-import type { NextPage } from "next";
+import type { GetServerSideProps, NextPage } from "next";
 import Image from "next/image";
 import { Inter } from "next/font/google";
 import styles from "@/styles/Home.module.css";
@@ -15,15 +15,19 @@ interface SearchCatImage {
   height: number;
 }
 
-const Home: NextPage = () => {
-  const [catImageUrl, setCatImageUrl] = useState("");
+interface IndexPagePops {
+  initialCatImageUrl: string;
+}
 
-  const fetchCatImage = async (): Promise<SearchCatImage> => {
-    const res = await fetch(" https://api.thecatapi.com/v1/images/search");
-    const result = await res.json();
-    //console.log(result[0]);
-    return result[0];
-  };
+const fetchCatImage = async (): Promise<SearchCatImage> => {
+  const res = await fetch(" https://api.thecatapi.com/v1/images/search");
+  const result = await res.json();
+  //console.log(result[0]);
+  return result[0];
+};
+
+const Home: NextPage<IndexPagePops> = ({ initialCatImageUrl }) => {
+  const [catImageUrl, setCatImageUrl] = useState(initialCatImageUrl);
 
   const handleClick = async () => {
     const catImage = await fetchCatImage();
@@ -50,6 +54,18 @@ const Home: NextPage = () => {
       <button onClick={handleClick}>Next cat</button>
     </div>
   );
+};
+
+//SSR
+export const getServerSideProps: GetServerSideProps<
+  IndexPagePops
+> = async () => {
+  const catImage = await fetchCatImage();
+  return {
+    props: {
+      initialCatImageUrl: catImage.url,
+    },
+  };
 };
 
 export default Home;
