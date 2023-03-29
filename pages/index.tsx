@@ -1,12 +1,7 @@
-import Head from "next/head";
 import type { GetServerSideProps, NextPage } from "next";
-import Image from "next/image";
-import { Inter } from "next/font/google";
-import styles from "@/styles/Home.module.css";
-import { request } from "http";
 import { useState } from "react";
-
-const inter = Inter({ subsets: ["latin"] });
+import "semantic-ui-css/semantic.min.css";
+import { Loader } from "semantic-ui-react";
 
 interface SearchCatImage {
   id: string;
@@ -28,10 +23,13 @@ const fetchCatImage = async (): Promise<SearchCatImage> => {
 
 const Home: NextPage<IndexPagePops> = ({ initialCatImageUrl }) => {
   const [catImageUrl, setCatImageUrl] = useState(initialCatImageUrl);
+  const [isLoarding, setIsLoarding] = useState(false);
 
   const handleClick = async () => {
+    setIsLoarding(true);
     const catImage = await fetchCatImage();
     setCatImageUrl(catImage.url);
+    setIsLoarding(false);
   };
 
   return (
@@ -45,12 +43,17 @@ const Home: NextPage<IndexPagePops> = ({ initialCatImageUrl }) => {
       }}
     >
       <h1>🐈Snap cat App🐈</h1>
-      <img
-        style={{ margin: "20px" }}
-        src={catImageUrl}
-        width={500}
-        height="auto"
-      />
+
+      {isLoarding ? (
+        <Loader active size="huge" inline="centered" />
+      ) : (
+        <img
+          style={{ margin: "20px" }}
+          src={catImageUrl}
+          width={500}
+          height="auto"
+        />
+      )}
       <button onClick={handleClick}>Next cat</button>
     </div>
   );
